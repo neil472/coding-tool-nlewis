@@ -5,6 +5,13 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
+# The workspace is a FUSE bind mount (DevPod 'fakeowner', consistency=cached).
+# git's default stat check compares inode/uid/gid/ctime/mtime-ns, which this
+# mount reports unreliably, so git treats unchanged files as dirty — `git status`
+# looks clean but `git rebase`/`git pull` abort with "local changes would be
+# overwritten". `minimal` compares only mtime + size and avoids the false dirty.
+git config --local core.checkStat minimal
+
 # Install beads (git hooks are orchestrated by lefthook — see lefthook.yml —
 # which calls `bd hooks run <stage>`, so we do NOT run `bd hooks install`).
 curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
