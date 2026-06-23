@@ -5,15 +5,18 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
+# Fix ownership of named volumes up front. Docker named volumes mount as root,
+# so the vscode user cannot write into them until they are chowned. Do this
+# before any installer writes into these paths (e.g. the Claude Code installer
+# creates ~/.claude/downloads).
+sudo chown vscode:vscode /workspaces/coding-tool/node_modules /home/vscode/.claude
+
 # Install beads (git hooks are orchestrated by lefthook — see lefthook.yml —
 # which calls `bd hooks run <stage>`, so we do NOT run `bd hooks install`).
 curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
 
 # Install Claude Code
 curl -fsSL https://claude.ai/install.sh | bash
-
-# Fix ownership of node_modules volume (Docker named volumes default to root)
-sudo chown vscode:vscode /workspaces/coding-tool/node_modules
 
 # Project-specific tools
 npm install
