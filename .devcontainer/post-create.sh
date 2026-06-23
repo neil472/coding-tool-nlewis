@@ -52,7 +52,9 @@ fi
 # (supabase_linux_<arch>.tar.gz) tarball — nanolayer's asset resolver refuses
 # to choose between the two ("Too many matches found") and the build fails.
 # Pulling an explicit versioned URL from the latest *stable* release avoids the
-# ambiguity entirely.
+# ambiguity entirely. The tarball ships TWO co-located binaries: `supabase`
+# (a thin shim) and `supabase-go` (the CLI the shim forwards to); both must be
+# installed side by side or the shim aborts with "Could not find supabase-go".
 if ! command -v supabase >/dev/null 2>&1; then
     case "$(uname -m)" in
         x86_64|amd64) SB_ARCH=amd64 ;;
@@ -62,10 +64,17 @@ if ! command -v supabase >/dev/null 2>&1; then
     SB_VER=$(curl -fsSL https://api.github.com/repos/supabase/cli/releases/latest 2>/dev/null \
         | grep -oP '"tag_name":\s*"v\K[^"]+' | head -1)
     if [ -n "$SB_ARCH" ] && [ -n "$SB_VER" ]; then
-        curl -fsSL "https://github.com/supabase/cli/releases/download/v${SB_VER}/supabase_${SB_VER}_linux_${SB_ARCH}.tar.gz" \
-            | sudo tar -xz -C /usr/local/bin supabase \
-            && echo "Installed supabase ${SB_VER}" \
-            || echo "supabase install failed"
+        SB_TMP=$(mktemp -d)
+        if curl -fsSL "https://github.com/supabase/cli/releases/download/v${SB_VER}/supabase_${SB_VER}_linux_${SB_ARCH}.tar.gz" \
+            | tar -xz -C "$SB_TMP"; then
+            sudo install -m 0755 "$SB_TMP/supabase" /usr/local/bin/supabase
+            # Newer releases also ship the supabase-go companion binary.
+            [ -f "$SB_TMP/supabase-go" ] && sudo install -m 0755 "$SB_TMP/supabase-go" /usr/local/bin/supabase-go
+            echo "Installed supabase ${SB_VER}"
+        else
+            echo "supabase install failed"
+        fi
+        rm -rf "$SB_TMP"
     else
         echo "Skipping supabase install (unsupported arch or version lookup failed)"
     fi
