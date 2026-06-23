@@ -1,5 +1,6 @@
 # Dependencies
-node_modules/
+# No trailing slash: also ignores the node_modules symlink that worktrees create.
+node_modules
 __pycache__/
 *.pyc
 .venv/

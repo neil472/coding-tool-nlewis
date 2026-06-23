@@ -1,13 +1,13 @@
 ---
 name: implementer
-description: Pure development workflow with test-first development and coverage review. Used by coordinator as a subagent. Never manages beads issues or commits.
+description: Pure development workflow with test-first development and coverage review. Used by coordinator as a subagent. Commits to its own worktree branch, but never pushes, manages beads issues, or opens PRs.
 ---
 
 # Implementer
 
 Follow these phases **in strict order**. Do not skip phases. Do not proceed until the current phase's gate is satisfied.
 
-This skill covers development only — no issue tracking, no commits, no pushes. The coordinator handles those.
+This skill covers development through committing to your own worktree branch — no issue tracking, no pushing, no PRs. The coordinator handles those: it integrates your branch by rebasing your commits onto the feature branch (see Phase 5). Your work only survives integration if it is **committed** — uncommitted changes are discarded when the coordinator removes your worktree.
 
 ## Principles
 
@@ -64,7 +64,22 @@ Verify all planned test cases are implemented. Then check for meaningful gaps: c
 
 **Gate:** All planned test cases implemented. No meaningful coverage gaps, or gaps documented with reasoning.
 
-## Phase 5: Summary
+## Phase 5: Commit
+
+Commit your work to your worktree branch. **Do not push** and **do not open a PR** — the coordinator integrates your branch by rebasing these commits onto the feature branch, so the work must be committed to survive.
+
+```bash
+git add -A
+git commit -m "<type>: <concise description of the change>"
+```
+
+- Use a conventional-commit subject (`feat:`, `fix:`, `test:`, `refactor:`, etc.).
+- lefthook's pre-commit hook runs lint + typecheck; a clean Phase 3 gate means this should pass. **If the pre-commit hook blocks the commit, stop** — do not bypass it with `--no-verify` or other tricks. Report the block in your summary.
+- Stage everything you changed (new test files, production code). Don't leave intended changes uncommitted.
+
+**Gate:** Your changes are committed on the worktree branch. Capture the full commit hash for the summary.
+
+## Phase 6: Summary
 
 **This must be the very last thing you output.** The coordinator reads your result — keep it concise to avoid polluting its context.
 

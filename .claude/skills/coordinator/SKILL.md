@@ -105,7 +105,7 @@ Read the task description: bd show <task-id> --json
 
 #### c. Handle Result
 
-The implementer's final output is a structured summary (Phase 5). Only read that summary — ignore intermediate tool output from the subagent. The Agent tool's result metadata exposes `worktree_path` and `branch` for integration.
+The implementer's final output is a structured summary (Phase 6). Only read that summary — ignore intermediate tool output from the subagent. The Agent tool's result metadata exposes `worktree_path` and `branch` for integration.
 
 **On implementer FAILURE or STALL** (timeout, crash, incomplete summary): don't silently drop the work. Choose one — retry with continuation, finish the task inline, or ask the user how to proceed.
 
@@ -158,17 +158,17 @@ Triage the "Concerns" section. Filing follow-ups mid-implementation is fine — 
 
 ### 3. Pre-PR Review
 
-Reviews are **optional** for small, isolated changes (single-file fixes, typo corrections, config tweaks). For anything of any complexity — multi-file changes, new features, behavioral changes, refactors — reviews are **required**. The same condition gates the /simplify pass in 2a — skip both together for trivial changes.
+Reviews are **optional** for small, isolated changes (single-file fixes, typo corrections, config tweaks). For anything of any complexity — multi-file changes, new features, behavioral changes, refactors — reviews are **required**. The same condition gates the /simplify pass in 3a — skip both together for trivial changes.
 
-#### 2a. Cleanup pass (/simplify)
+#### 3a. Cleanup pass (/simplify)
 
 After all tasks are merged into the feature branch, invoke the Claude Code built-in `/simplify` skill via the Skill tool (`skill: "simplify"`). It spawns 3 parallel agents (reuse / quality / efficiency) over the changed files and **auto-commits** cleanup fixes directly to the feature branch.
 
 `/simplify` is bundled with Claude Code — there is no repo-local SKILL.md for it. Do not try to read it from `.claude/skills/`.
 
-Rationale: running the cleanup pass before the specialized reviewers means they assess post-cleanup code instead of wasting cycles on cruft `/simplify` already removed. Auto-fix is safe here — the 3 specialized reviewers in 2b inspect the post-cleanup diff, and the user inspects the final PR diff before merge.
+Rationale: running the cleanup pass before the specialized reviewers means they assess post-cleanup code instead of wasting cycles on cruft `/simplify` already removed. Auto-fix is safe here — the 3 specialized reviewers in 3b inspect the post-cleanup diff, and the user inspects the final PR diff before merge.
 
-#### 2b. Specialized reviews
+#### 3b. Specialized reviews
 
 After `/simplify` has committed its cleanup, run 3 specialized reviews **in parallel** using the Task tool. Each reviewer enters the coordinator's existing worktree (do NOT create a new worktree):
 
@@ -230,7 +230,7 @@ If the epic has e2e acceptance tests, run them here targeting the specific spec 
 
 **Skip the test-runner entirely** only for genuinely gate-free changes (pure docs/config). **Do NOT create PR if the test-runner reports FAIL.** Fix locally first (spawn implementer if non-trivial).
 
-### 3. Create PR, Monitor CI, and Hand Off
+### 4. Create PR, Monitor CI, and Hand Off
 
 **PR description guidelines:**
 

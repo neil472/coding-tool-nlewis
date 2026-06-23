@@ -65,10 +65,16 @@ Then check:
 - Could a completely wrong implementation still pass? (sign of over-mocking or weak assertions)
 - Flag low-value tests: tautologies (`expect(x).toBeDefined()` with no further assertion), asserting a call succeeded without checking the result, no assertions, exhaustive unit tests for constructors/getters/wiring
 
+#### Mock vs Real Behavior
+- Do tests only exercise mocks, never the real logic under test?
+- Are mocks asserting *what was sent to them* — repository call arguments, the SQL query, the HTTP request body — not just that they were called?
+
 #### Integration Test Coverage
 - Are database interactions tested against a real local Supabase instance (with migrations applied), not just mocked?
 - Do integration tests cover critical paths end-to-end? (HTTP request → route handler → repository → Postgres → response)
 - Are SQL queries, RLS policies, and migrations tested together?
+- For auth/RBAC code: is the permission boundary verified against real fixtures (real roles/namespaces), not just a stubbed auth context?
+- Is there an appropriate balance of unit vs integration tests? (unit tests for pure logic, integration tests for I/O boundaries — persistence, API routes, auth)
 
 #### Edge Cases & Skipped Tests
 - Are error paths, boundary conditions, and concurrent scenarios tested where relevant?

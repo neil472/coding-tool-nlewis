@@ -58,7 +58,7 @@ For each file in the diff, check:
 
 #### Security
 - Input validation at system boundaries
-- SQL injection, command injection, XSS
+- Injection risks (SQL, command, XSS, template, SSRF, etc.)
 - Authentication/authorization gaps
 - Secrets in code or logs
 - Unsafe type assertions or casts
