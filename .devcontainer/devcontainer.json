@@ -1,13 +1,12 @@
 {
   "name": "coding-tool",
-  "image": "mcr.microsoft.com/devcontainers/base:trixie",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
 
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/coding-tool,type=bind,consistency=cached",
   "workspaceFolder": "/workspaces/coding-tool",
-
-  "mounts": [
-    "source=/Users/nlewis/zscaler-cert.pem,target=/usr/local/share/ca-certificates/zscaler.pem,type=bind,readonly"
-  ],
 
   "features": {
     "ghcr.io/devcontainers/features/python:1": { "version": "3.12" },
@@ -16,7 +15,7 @@
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
 
-  "postCreateCommand": "update-ca-certificates && ./.devcontainer/post-create.sh",
+  "postCreateCommand": "./.devcontainer/post-create.sh",
   "postStartCommand": "./.devcontainer/setup-secrets.sh",
 
   "forwardPorts": [3000, 3001, 54321, 54322, 54323, 54324],
